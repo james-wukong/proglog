@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package log.v1;
+
+// this protobuf package name is used as the package name in the generated Go code
+// it prevents name clashes between protocol message types that have the same name
+option go_package = "api/log_v1";
+
+message Record {
+    bytes value = 1;
+    uint64 offset = 2;
+}
+
+// ConsumeStream—a server-side streaming RPC where the client sends a request to the server and gets back a stream to read a sequence of messages
+// ProduceStream—a bidirectional streaming RPC where both the client and server send a sequence of messages using a read-write stream
+service Log {
+    rpc Produce(ProduceRequest) returns (ProduceResponse) {}
+    rpc Consume(ConsumeRequest) returns (ConsumeResponse) {}
+    rpc ConsumeStream(ConsumeRequest) returns (stream ConsumeResponse) {}
+    rpc ProduceStream(stream ProduceRequest) returns (stream ProduceResponse) {}
+}
+
+message ProduceRequest {
+    Record record = 1;
+}
+
+message ProduceResponse {
+    uint64 offset = 1;
+}
+
+message ConsumeRequest {
+    uint64 offset = 1;
+}
+
+message ConsumeResponse {
+    Record record = 2;
+}
